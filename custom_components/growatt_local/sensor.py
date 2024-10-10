@@ -27,7 +27,7 @@ from .API.device_type.base import (
     ATTR_ACTIVE_POWER,
     ATTR_INPUT_POWER,
     ATTR_OUTPUT_POWER,
-    ATTR_DISCHARGE_POWER,
+    ATTR_AC_DISCHARGE_POWER,
     ATTR_CHARGE_POWER,
     ATTR_SOC_PERCENTAGE,
     ATTR_LOAD_PERCENTAGE,
@@ -104,7 +104,7 @@ async def async_setup_entry(
     elif device_type in (DeviceTypes.STORAGE_120, ):
         power_sensor = (ATTR_SOC_PERCENTAGE, ATTR_DISCHARGE_POWER, ATTR_CHARGE_POWER)
     elif device_type == DeviceTypes.OFFGRID_SPF:
-        power_sensor = (ATTR_ACTIVE_POWER, ATTR_LOAD_PERCENTAGE, ATTR_DISCHARGE_POWER, ATTR_CHARGE_POWER)
+        power_sensor = (ATTR_ACTIVE_POWER, ATTR_LOAD_PERCENTAGE, ATTR_AC_DISCHARGE_POWER, ATTR_CHARGE_POWER)
     else:
         power_sensor = tuple()
         _LOGGER.debug(

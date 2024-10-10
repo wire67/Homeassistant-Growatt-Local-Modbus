@@ -23,6 +23,7 @@ from .const import (
     DOMAIN,
 )
 from .sensor_types.inverter import INVERTER_POWER_SWITCH
+from .sensor_types.offgrid import OFFGRID_SWITCH_TYPES
 from .sensor_types.storage import STORAGE_SWITCH_TYPES
 from .sensor_types.switch_entity_description import GrowattSwitchEntityDescription
 
@@ -42,9 +43,9 @@ async def async_setup_entry(
     supported_key_names = coordinator.growatt_api.get_register_names()
 
     if config_entry.options.get(CONF_INVERTER_POWER_CONTROL, False):
-        sensor_descriptions.append(INVERTER_POWER_SWITCH) 
+        sensor_descriptions.append(INVERTER_POWER_SWITCH)
 
-    for sensor in STORAGE_SWITCH_TYPES:
+    for sensor in list(set(STORAGE_SWITCH_TYPES + OFFGRID_SWITCH_TYPES)):
         if sensor.key not in supported_key_names:
             continue
         sensor_descriptions.append(sensor)
@@ -134,9 +135,8 @@ class GrowattDeviceEntity(CoordinatorEntity, RestoreEntity, SwitchEntity):
         if self.entity_description.mask != 0:
             self._attr_is_on = value & self.entity_description.mask
             self.masked_value = value ^ self._attr_is_on
-
-        else:    
-            self._attr_is_on = value >= 1
+        else:
+            self._attr_is_on = value == self.entity_description.state_on
 
         self.async_write_ha_state()
 

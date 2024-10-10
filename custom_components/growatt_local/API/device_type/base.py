@@ -15,6 +15,7 @@ ATTR_MODBUS_VERSION = "modbus version"
 # Attribute names for values in the holding register
 ATTR_INVERTER_ENABLED = "inverter_enabled"
 ATTR_AC_CHARGE_ENABLED = "ac_charge_enabled"
+ATTR_HOLDING_AC_OUT_SOURCE = "ac_out_source" # SUb, SbU, ...
 
 # Attribute names for values in the input register
 ATTR_STATUS = "status"
@@ -113,6 +114,7 @@ ATTR_OUTPUT_PERCENTAGE = "real_output_power_percent"  # %
 # Attribute names for values in the input register Storage
 ATTR_SOC_PERCENTAGE = "soc"  # %
 ATTR_DISCHARGE_POWER = "discharge_power"  # W
+ATTR_AC_DISCHARGE_POWER = "ac_discharge_power"
 ATTR_CHARGE_POWER = "charge_power"  # W
 
 ATTR_ENERGY_TO_USER_TODAY = "energy_to_user_today"  # kWh
@@ -126,7 +128,7 @@ ATTR_DISCHARGE_ENERGY_TOTAL = "discharge_energy_total"  # kWh
 ATTR_CHARGE_ENERGY_TODAY = "charge_energy_today"  # kWh
 ATTR_CHARGE_ENERGY_TOTAL = "charge_energy_total"  # kWh
 
-# Attribute names for values in the input register for Offgrid inverter 
+# Attribute names for values in the input register for Offgrid inverter
 ATTR_ACTIVE_POWER = "output_active_power"  # W
 
 ATTR_BATTERY_VOLTAGE = "battery_voltage"  # V
@@ -148,6 +150,12 @@ ATTR_AC_DISCHARGE_TODAY = "ac_discharge_energy_today"  # kWh
 ATTR_AC_DISCHARGE_TOTAL = "ac_discharge_energy_total"  # kWh
 
 ATTR_BATTERY_POWER = "battery_power"  # W
+ATTR_ALL_CHARGE_AMPERAGE = "all_charge_amperage"  # A
+ATTR_ALL_DISCHARGE_AMPERAGE = "all_discharge_amperage"  # A
+ATTR_OUTPUT_DISCHARGE_ENERGY_TODAY = "output_discharge_energy_today"  # kWh
+ATTR_OUTPUT_DISCHARGE_ENERGY_TOTAL = "output_discharge_energy_total"  # kWh
+ATTR_BAT_DISCHARGE_APPARENT_POWER = "bat_discharge_apparent_power" # VA
+ATTR_INV_AMPERAGE = "inv_current"
 
 class custom_function(type):
     """

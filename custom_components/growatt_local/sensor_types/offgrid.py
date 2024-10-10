@@ -16,7 +16,9 @@ from homeassistant.const import (
     PERCENTAGE,
 )
 from .sensor_entity_description import GrowattSensorEntityDescription
+from .switch_entity_description import GrowattSwitchEntityDescription
 from ..API.device_type.base import (
+    ATTR_HOLDING_AC_OUT_SOURCE,
     ATTR_INPUT_1_VOLTAGE,
     ATTR_INPUT_1_AMPERAGE,
     ATTR_INPUT_1_POWER,
@@ -32,7 +34,7 @@ from ..API.device_type.base import (
     ATTR_GRID_FREQUENCY,
     ATTR_TEMPERATURE,
     ATTR_SOC_PERCENTAGE,
-    ATTR_DISCHARGE_POWER,
+    ATTR_AC_DISCHARGE_POWER,
     ATTR_CHARGE_POWER,
     ATTR_ACTIVE_POWER,
     ATTR_BATTERY_VOLTAGE,
@@ -54,6 +56,22 @@ from ..API.device_type.base import (
     ATTR_DISCHARGE_ENERGY_TOTAL,
     ATTR_AC_DISCHARGE_TODAY,
     ATTR_AC_DISCHARGE_TOTAL,
+    ATTR_ALL_CHARGE_AMPERAGE,
+    ATTR_ALL_DISCHARGE_AMPERAGE,
+    ATTR_OUTPUT_DISCHARGE_ENERGY_TODAY,
+    ATTR_OUTPUT_DISCHARGE_ENERGY_TOTAL,
+    ATTR_BAT_DISCHARGE_APPARENT_POWER,
+    ATTR_INV_AMPERAGE,
+)
+from ..API.const import UNIT_OF_APPARENT_POWER
+
+OFFGRID_SWITCH_TYPES: tuple[GrowattSwitchEntityDescription, ...] = (
+    GrowattSwitchEntityDescription(
+        key=ATTR_HOLDING_AC_OUT_SOURCE,
+        name="BAT First",
+        state_on=0x0, # SbU
+        state_off=0x3 # SUb
+    ),
 )
 
 OFFGRID_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
@@ -77,7 +95,7 @@ OFFGRID_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
     ),
     GrowattSensorEntityDescription(
         key=ATTR_INPUT_1_ENERGY_TODAY,
-        name="PV1 energy produced today",
+        name="PV1 energy produced Today",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -110,7 +128,7 @@ OFFGRID_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
     ),
     GrowattSensorEntityDescription(
         key=ATTR_INPUT_2_ENERGY_TODAY,
-        name="PV2 energy produced today",
+        name="PV2 energy produced Today",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -178,7 +196,7 @@ OFFGRID_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
     ),
     GrowattSensorEntityDescription(
         key=ATTR_CHARGE_ENERGY_TODAY,
-        name="Battery Charged Today",
+        name="AC Charge Energy today",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -186,7 +204,7 @@ OFFGRID_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
     ),
     GrowattSensorEntityDescription(
         key=ATTR_CHARGE_ENERGY_TOTAL,
-        name="Grid Charged Lifetime",
+        name="AC Charge Energy Lifetime",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -198,14 +216,14 @@ OFFGRID_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.CURRENT,
     ),
     GrowattSensorEntityDescription(
-        key=ATTR_DISCHARGE_POWER,
-        name="Battery discharge power",
+        key=ATTR_AC_DISCHARGE_POWER,
+        name="AC Discharge Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
     ),
     GrowattSensorEntityDescription(
         key=ATTR_DISCHARGE_ENERGY_TODAY,
-        name="Battery Discharged Today",
+        name="Bat Discharge Energy Lifetime",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -213,14 +231,14 @@ OFFGRID_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
     ),
     GrowattSensorEntityDescription(
         key=ATTR_DISCHARGE_ENERGY_TOTAL,
-        name="Battery Discharged Lifetime",
+        name="Bat Discharge Energy Lifetime",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
     ),
     GrowattSensorEntityDescription(
         key=ATTR_AC_DISCHARGE_TODAY,
-        name="AC Discharged Today",
+        name="AC Discharge Energy today",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -228,7 +246,7 @@ OFFGRID_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
     ),
     GrowattSensorEntityDescription(
         key=ATTR_AC_DISCHARGE_TOTAL,
-        name="Grid Discharged Lifetime",
+        name="AC Discharge Energy Lifetime",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -292,6 +310,44 @@ OFFGRID_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
         name="Battery charging/ discharging(-ve)",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
+    ),
+    GrowattSensorEntityDescription(
+        key=ATTR_ALL_CHARGE_AMPERAGE,
+        name="All Charge Current",
+        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+        device_class=SensorDeviceClass.CURRENT,
+    ),
+    GrowattSensorEntityDescription(
+        key=ATTR_ALL_DISCHARGE_AMPERAGE,
+        name="All Discharge Current",
+        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+        device_class=SensorDeviceClass.CURRENT,
+    ),
+    GrowattSensorEntityDescription(
+        key=ATTR_OUTPUT_DISCHARGE_ENERGY_TODAY,
+        name="Output Discharge Energy Today",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    GrowattSensorEntityDescription(
+        key=ATTR_OUTPUT_DISCHARGE_ENERGY_TOTAL,
+        name="Output Discharge Energy Lifetime",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    GrowattSensorEntityDescription(
+        key=ATTR_BAT_DISCHARGE_APPARENT_POWER,
+        name="Bat Discharge Apparent Power",
+        native_unit_of_measurement=UNIT_OF_APPARENT_POWER,
+        device_class=SensorDeviceClass.APPARENT_POWER,
+    ),
+    GrowattSensorEntityDescription(
+        key=ATTR_INV_AMPERAGE,
+        name="Inv Current",
+        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+        device_class=SensorDeviceClass.CURRENT,
     ),
     GrowattSensorEntityDescription(
         key="status",
