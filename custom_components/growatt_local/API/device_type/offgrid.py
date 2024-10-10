@@ -23,7 +23,7 @@ from .base import (
     ATTR_GRID_FREQUENCY,
     ATTR_TEMPERATURE,
     ATTR_SOC_PERCENTAGE,
-    ATTR_DISCHARGE_POWER,
+    ATTR_AC_DISCHARGE_POWER,
     ATTR_CHARGE_POWER,
     ATTR_ACTIVE_POWER,
     ATTR_BATTERY_VOLTAGE,
@@ -46,12 +46,18 @@ from .base import (
     ATTR_AC_CHARGE_AMPERAGE,
     ATTR_AC_DISCHARGE_TODAY,
     ATTR_AC_DISCHARGE_TOTAL,
+    ATTR_INV_AMPERAGE,
+    ATTR_BAT_DISCHARGE_APPARENT_POWER,
+    ATTR_ALL_CHARGE_AMPERAGE,
+    ATTR_ALL_DISCHARGE_AMPERAGE,
+    ATTR_OUTPUT_DISCHARGE_ENERGY_TODAY,
+    ATTR_OUTPUT_DISCHARGE_ENERGY_TOTAL,
 )
 
 
 class OffgridStatus(Enum):
     "Enum of possible Offgrid Status."
-    Stendby = 0
+    Standby = 0
     Not_used = 1
     Discharge = 2
     Fault = 3
@@ -221,6 +227,9 @@ INPUT_REGISTERS_OFFGRID: tuple[GrowattDeviceRegisters, ...] = (
         name=ATTR_OUTPUT_1_AMPERAGE, register=34, value_type=float,
     ),
     GrowattDeviceRegisters(
+        name=ATTR_INV_AMPERAGE, register=35, value_type=float,
+    ),
+    GrowattDeviceRegisters(
         name=ATTR_FAULT_CODE, register=42, value_type=int
     ),
     GrowattDeviceRegisters(
@@ -229,8 +238,7 @@ INPUT_REGISTERS_OFFGRID: tuple[GrowattDeviceRegisters, ...] = (
     GrowattDeviceRegisters(
         name=ATTR_CONSTANT_POWER, register=47, value_type=int
     ),
-
-    GrowattDeviceRegisters(
+    GrowattDeviceRegisters( # PV Energy today
         name=ATTR_INPUT_1_ENERGY_TODAY, register=48, value_type=float, length=2
     ),
     GrowattDeviceRegisters(
@@ -243,32 +251,35 @@ INPUT_REGISTERS_OFFGRID: tuple[GrowattDeviceRegisters, ...] = (
         name=ATTR_INPUT_2_ENERGY_TOTAL, register=54, value_type=float, length=2
     ),
 
-    GrowattDeviceRegisters(
+    GrowattDeviceRegisters( # AC charge Energy today
         name=ATTR_CHARGE_ENERGY_TODAY, register=56, value_type=float, length=2
     ),
-    GrowattDeviceRegisters(
+    GrowattDeviceRegisters( # AC charge Energy total
         name=ATTR_CHARGE_ENERGY_TOTAL, register=58, value_type=float, length=2
     ),
-    GrowattDeviceRegisters(
+    GrowattDeviceRegisters( # Bat discharge Energy today
         name=ATTR_DISCHARGE_ENERGY_TODAY, register=60, value_type=float, length=2
     ),
-    GrowattDeviceRegisters(
+    GrowattDeviceRegisters( # Bat discharge Energy Total
         name=ATTR_DISCHARGE_ENERGY_TOTAL, register=62, value_type=float, length=2
     ),
-    GrowattDeviceRegisters(
+    GrowattDeviceRegisters( # AC discharge energy today
         name=ATTR_AC_DISCHARGE_TODAY, register=64, value_type=float, length=2
     ),
-    GrowattDeviceRegisters(
+    GrowattDeviceRegisters( # AC discharge energy total
         name=ATTR_AC_DISCHARGE_TOTAL, register=66, value_type=float, length=2
     ),
     GrowattDeviceRegisters(
         name=ATTR_AC_CHARGE_AMPERAGE, register=68, value_type=float,
     ),
     GrowattDeviceRegisters(
-        name=ATTR_DISCHARGE_POWER, register=69, value_type=float, length=2
+        name=ATTR_AC_DISCHARGE_POWER, register=69, value_type=float, length=2
     ),
     GrowattDeviceRegisters(
         name=ATTR_BATTERY_DISCHARGE_AMPERAGE, register=73, value_type=float,
+    ),
+    GrowattDeviceRegisters(
+        name=ATTR_BAT_DISCHARGE_APPARENT_POWER, register=75, value_type=float,
     ),
     GrowattDeviceRegisters(
         name=ATTR_BATTERY_POWER,
@@ -276,5 +287,17 @@ INPUT_REGISTERS_OFFGRID: tuple[GrowattDeviceRegisters, ...] = (
         value_type=custom_function,
         length=2,
         function=batt_watt
-    )
+    ),
+    GrowattDeviceRegisters(
+        name=ATTR_ALL_CHARGE_AMPERAGE, register=83, value_type=float,
+    ),
+    GrowattDeviceRegisters(
+        name=ATTR_ALL_DISCHARGE_AMPERAGE, register=84, value_type=float,
+    ),
+    GrowattDeviceRegisters(
+        name=ATTR_OUTPUT_DISCHARGE_ENERGY_TODAY, register=85, value_type=float, length=2,
+    ),
+    GrowattDeviceRegisters(
+        name=ATTR_OUTPUT_DISCHARGE_ENERGY_TOTAL, register=87, value_type=float, length=2,
+    ),
 )

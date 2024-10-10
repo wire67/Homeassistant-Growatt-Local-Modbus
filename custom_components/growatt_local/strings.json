@@ -57,7 +57,7 @@
           "dc_string": "Number of Solar strings",
           "ac_phases": "Number of AC phases",
           "scan_interval": "General update interval",
-          "power_scan_enabled": "Enable power update interval",
+          "power_scan_enabled": "Enable power update interval (faster refresh for some sensors)",
           "power_scan_interval": "Power update interval",
           "inverter_power_control": "Inverter power control"
         },
@@ -80,7 +80,7 @@
           "dc_string": "Number of Solar strings",
           "ac_phases": "Number of AC phases",
           "scan_interval": "General update interval",
-          "power_scan_enabled": "Enable power update interval",
+          "power_scan_enabled": "Enable power update interval (faster refresh for some sensors)",
           "power_scan_interval": "Power update interval",
           "inverter_power_control": "Inverter power control"
         },
