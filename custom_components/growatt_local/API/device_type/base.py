@@ -125,7 +125,7 @@ ATTR_DISCHARGE_ENERGY_TOTAL = "discharge_energy_total"  # kWh
 ATTR_CHARGE_ENERGY_TODAY = "charge_energy_today"  # kWh
 ATTR_CHARGE_ENERGY_TOTAL = "charge_energy_total"  # kWh
 
-# Attribute names for values in the input register for Offgrid inverter 
+# Attribute names for values in the input register for Offgrid inverter
 ATTR_ACTIVE_POWER = "output_active_power"  # W
 
 ATTR_BATTERY_VOLTAGE = "battery_voltage"  # V
@@ -147,6 +147,7 @@ ATTR_AC_DISCHARGE_TODAY = "ac_discharge_energy_today"  # kWh
 ATTR_AC_DISCHARGE_TOTAL = "ac_discharge_energy_total"  # kWh
 
 ATTR_BATTERY_POWER = "battery_power"  # W
+ATTR_HOLDING_AC_OUT_SOURCE = "ac_out_source" # SUb, SbU, ...
 
 class custom_function(type):
     """

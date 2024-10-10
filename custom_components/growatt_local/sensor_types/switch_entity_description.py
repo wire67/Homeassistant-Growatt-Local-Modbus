@@ -15,5 +15,15 @@ class GrowattSwitchRequiredKeysMixin:
 @dataclass
 class GrowattSwitchEntityDescription(SwitchEntityDescription, GrowattSwitchRequiredKeysMixin):
     """Describes Growatt sensor entity."""
+    key: str
+    name: str
+
+    def __hash__(self):
+        return hash((self.key, self.name))  # Use key and name or any hashable attributes
+
+    def __eq__(self, other):
+        if isinstance(other, GrowattSwitchEntityDescription):
+            return (self.key, self.name) == (other.key, other.name)
+        return False
 
 

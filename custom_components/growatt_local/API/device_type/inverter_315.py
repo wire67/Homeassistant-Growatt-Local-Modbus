@@ -48,6 +48,7 @@ from .base import (
     ATTR_P_BUS_VOLTAGE,
     ATTR_N_BUS_VOLTAGE,
     ATTR_OUTPUT_PERCENTAGE,
+    ATTR_HOLDING_AC_OUT_SOURCE,
 )
 
 
@@ -83,7 +84,10 @@ HOLDING_REGISTERS_315: tuple[GrowattDeviceRegisters, ...] = (
         register=73,
         value_type=float,
         scale=100
-    )
+    ),
+    GrowattDeviceRegisters(
+        name=ATTR_HOLDING_AC_OUT_SOURCE, register=1, value_type=int, length=1
+    ),
 )
 
 INPUT_REGISTERS_315: tuple[GrowattDeviceRegisters, ...] = (

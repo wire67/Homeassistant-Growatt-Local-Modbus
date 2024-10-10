@@ -16,7 +16,9 @@ from homeassistant.const import (
     PERCENTAGE,
 )
 from .sensor_entity_description import GrowattSensorEntityDescription
+from .switch_entity_description import GrowattSwitchEntityDescription
 from ..API.device_type.base import (
+    ATTR_STATUS_CODE,
     ATTR_INPUT_POWER,
     ATTR_INPUT_ENERGY_TOTAL,
     ATTR_INPUT_1_VOLTAGE,
@@ -78,6 +80,14 @@ from ..API.device_type.base import (
     ATTR_IPM_TEMPERATURE,
     ATTR_OUTPUT_PERCENTAGE,
 )
+
+INVERTER_SWITCH_TYPES: tuple[GrowattSwitchEntityDescription, ...] = (
+   #  GrowattSwitchEntityDescription(
+   #      key=ATTR_STATUS_CODE,
+   #      name="Inverter state"
+   #  ),
+)
+
 
 INVERTER_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
     GrowattSensorEntityDescription(

@@ -5,6 +5,7 @@ from typing import Any
 from .base import (
     GrowattDeviceRegisters,
     custom_function,
+    ATTR_HOLDING_AC_OUT_SOURCE,
     ATTR_STATUS_CODE,
     ATTR_FAULT_CODE,
     ATTR_WARNING_CODE,
@@ -51,7 +52,7 @@ from .base import (
 
 class OffgridStatus(Enum):
     "Enum of possible Offgrid Status."
-    Stendby = 0
+    Standby = 0
     Not_used = 1
     Discharge = 2
     Fault = 3

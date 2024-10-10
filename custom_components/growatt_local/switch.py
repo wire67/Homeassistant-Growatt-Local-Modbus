@@ -21,6 +21,8 @@ from .const import (
     CONF_SERIAL_NUMBER,
     DOMAIN,
 )
+from .sensor_types.inverter import INVERTER_SWITCH_TYPES
+from .sensor_types.offgrid import OFFGRID_SWITCH_TYPES
 from .sensor_types.storage import STORAGE_SWITCH_TYPES
 from .sensor_types.switch_entity_description import GrowattSwitchEntityDescription
 
@@ -39,7 +41,7 @@ async def async_setup_entry(
     sensor_descriptions: list[GrowattSwitchEntityDescription] = []
     supported_key_names = coordinator.growatt_api.get_register_names()
 
-    for sensor in STORAGE_SWITCH_TYPES:
+    for sensor in list(set(STORAGE_SWITCH_TYPES + INVERTER_SWITCH_TYPES + OFFGRID_SWITCH_TYPES)):
         if sensor.key not in supported_key_names:
             continue
         sensor_descriptions.append(sensor)
@@ -86,13 +88,17 @@ class GrowattDeviceEntity(CoordinatorEntity, RestoreEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         register = self.coordinator.get_holding_register_by_name(self.entity_description.key)
         _LOGGER.debug("Device type %s key %s and register %d", self._attr_unique_id, register.name, register.register)
-        await self.coordinator.write_register(register.register, 1)
+        await self.coordinator.write_register(register.register, 0)
+        #   state_on: 0 # SbU
+        #   state_off: 3 # SUb
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         register = self.coordinator.get_holding_register_by_name(self.entity_description.key)
         _LOGGER.debug("Device type %s key %s and register %d", self._attr_unique_id, register.name, register.register)
-        await self.coordinator.write_register(register.register, 0)
+        await self.coordinator.write_register(register.register, 3)
         await self.coordinator.force_refresh()
+        #   state_on: 0 # SbU
+        #   state_off: 3 # SUb
 
     async def async_added_to_hass(self) -> None:
         """Call when entity is about to be added to Home Assistant."""
@@ -111,7 +117,9 @@ class GrowattDeviceEntity(CoordinatorEntity, RestoreEntity, SwitchEntity):
 
         value = int(state)
 
-        self._attr_is_on = value == 1
+        #   state_on: 0 # SbU
+        #   state_off: 3 # SUb
+        self._attr_is_on = value == 0
 
         self.async_write_ha_state()
 

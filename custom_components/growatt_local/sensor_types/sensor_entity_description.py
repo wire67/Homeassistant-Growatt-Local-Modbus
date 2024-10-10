@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from homeassistant.components.sensor import SensorEntityDescription
+from homeassistant.core import Event
 
 
 @dataclass
@@ -17,3 +18,4 @@ class GrowattSensorRequiredKeysMixin:
 @dataclass
 class GrowattSensorEntityDescription(GrowattSensorRequiredKeysMixin, SensorEntityDescription):
     """Describes Growatt sensor entity."""
+

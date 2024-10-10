@@ -16,7 +16,10 @@ from homeassistant.const import (
     PERCENTAGE,
 )
 from .sensor_entity_description import GrowattSensorEntityDescription
+from .switch_entity_description import GrowattSwitchEntityDescription
 from ..API.device_type.base import (
+    ATTR_HOLDING_AC_OUT_SOURCE,
+    ATTR_STATUS_CODE,
     ATTR_INPUT_1_VOLTAGE,
     ATTR_INPUT_1_AMPERAGE,
     ATTR_INPUT_1_POWER,
@@ -54,6 +57,15 @@ from ..API.device_type.base import (
     ATTR_DISCHARGE_ENERGY_TOTAL,
     ATTR_AC_DISCHARGE_TODAY,
     ATTR_AC_DISCHARGE_TOTAL,
+)
+
+OFFGRID_SWITCH_TYPES: tuple[GrowattSwitchEntityDescription, ...] = (
+    GrowattSwitchEntityDescription(
+        key=ATTR_HOLDING_AC_OUT_SOURCE,
+        name="BAT First"
+      #   state_on=0, # SbU
+      #   state_off=3 # SUb
+    ),
 )
 
 OFFGRID_SENSOR_TYPES: tuple[GrowattSensorEntityDescription, ...] = (
