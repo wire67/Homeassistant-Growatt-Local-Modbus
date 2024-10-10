@@ -82,10 +82,10 @@ from ..API.device_type.base import (
 )
 
 INVERTER_SWITCH_TYPES: tuple[GrowattSwitchEntityDescription, ...] = (
-   #  GrowattSwitchEntityDescription(
-   #      key=ATTR_STATUS_CODE,
-   #      name="Inverter state"
-   #  ),
+    GrowattSwitchEntityDescription(
+        key=ATTR_STATUS_CODE,
+        name="Inverter state"
+    ),
 )
 
 
