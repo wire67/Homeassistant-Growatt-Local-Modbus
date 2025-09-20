@@ -15,9 +15,7 @@ from pymodbus.client import ModbusBaseClient
 from pymodbus.client.serial import AsyncModbusSerialClient
 from pymodbus.client.tcp import AsyncModbusTcpClient
 from pymodbus.client.udp import AsyncModbusUdpClient
-from pymodbus.constants import Endian
 from pymodbus.framer import FramerType
-from pymodbus.payload import BinaryPayloadBuilder
 from pymodbus.pdu import ModbusPDU
 
 from .device_type.base import (
@@ -35,8 +33,8 @@ from .device_type.base import (
     ATTR_STATUS_CODE,
     inverter_status,
 )
-from .device_type.inverter_120 import MAXIMUM_DATA_LENGTH_120, HOLDING_REGISTERS_120, INPUT_REGISTERS_120
-from .device_type.storage_120 import STORAGE_HOLDING_REGISTERS_120, STORAGE_INPUT_REGISTERS_120
+from .device_type.inverter_120 import MAXIMUM_DATA_LENGTH_120, HOLDING_REGISTERS_120, INPUT_REGISTERS_120, INPUT_REGISTERS_120_TL_XH
+from .device_type.storage_120 import STORAGE_HOLDING_REGISTERS_120, STORAGE_INPUT_REGISTERS_120, STORAGE_INPUT_REGISTERS_120_TL_XH
 from .device_type.inverter_315 import MAXIMUM_DATA_LENGTH_315, HOLDING_REGISTERS_315, INPUT_REGISTERS_315
 from .device_type.offgrid import INPUT_REGISTERS_OFFGRID, offgrid_status
 
@@ -114,18 +112,18 @@ class GrowattModbusBase:
         Read Growatt device time.
         """
         # TODO: update with dynamic register values
-        rhr = await self.client.read_holding_registers(45, count=6, slave=slave)
+        rhr = await self.client.read_holding_registers(45, count=6, device_id=slave)
         if rhr.isError():
             _LOGGER.debug("Modbus read failed for rhr")
             raise ModbusException("Modbus read failed for rhr.")
 
         return datetime(
-            rhr.register[0] + 2000,
-            rhr.register[1],
-            rhr.register[2],
-            rhr.register[3],
-            rhr.register[4],
-            rhr.register[5],
+            rhr.registers[0] + 2000,
+            rhr.registers[1],
+            rhr.registers[2],
+            rhr.registers[3],
+            rhr.registers[4],
+            rhr.registers[5],
         )
 
     async def write_device_time(
@@ -141,20 +139,17 @@ class GrowattModbusBase:
         await self.client.write_register(49, minute)
         await self.client.write_register(50, second)
 
-    async def write_register(self, register, payload, slave) -> ModbusPDU:
-        builder = BinaryPayloadBuilder(byteorder=Endian.BIG, wordorder=Endian.BIG)
-        builder.reset()
-        builder.add_16bit_int(payload)
-        payload = builder.to_registers()
+    async def write_register(self, register, value, slave) -> ModbusPDU:  
+        payload = ModbusBaseClient.convert_to_registers(value, ModbusBaseClient.DATATYPE.INT16)
         return await self.client.write_register(register, payload[0], slave=slave)
 
     async def read_holding_registers(self, start_address, count, slave) -> dict[int, int]:
-        data = await self.client.read_holding_registers(start_address, count=count, slave=slave)
+        data = await self.client.read_holding_registers(start_address, count=count, device_id=slave)
         registers = {c: v for c, v in enumerate(data.registers, start_address)}
         return registers
 
     async def read_input_registers(self, start_address, count, slave) -> dict[int, int]:
-        data = await self.client.read_input_registers(start_address, count=count, slave=slave)
+        data = await self.client.read_input_registers(start_address, count=count, device_id=slave)
         registers = {c: v for c, v in enumerate(data.registers, start_address)}
         return registers
 
@@ -419,7 +414,7 @@ def get_register_information(GrowattDeviceType: DeviceTypes) -> DeviceRegisters:
         input_register = {
             obj.register: obj for obj in INPUT_REGISTERS_120
         }
-    elif GrowattDeviceType == DeviceTypes.HYBRIDE_120:
+    elif GrowattDeviceType == DeviceTypes.HYBRID_120:
         max_length = MAXIMUM_DATA_LENGTH_120
         holding_register = {
             obj.register: obj for obj in STORAGE_HOLDING_REGISTERS_120
@@ -429,6 +424,17 @@ def get_register_information(GrowattDeviceType: DeviceTypes) -> DeviceRegisters:
         }
         input_register.update({
             obj.register: obj for obj in STORAGE_INPUT_REGISTERS_120
+        })
+    elif GrowattDeviceType == DeviceTypes.HYBRID_120_TL_XH:
+        max_length = MAXIMUM_DATA_LENGTH_120
+        holding_register = {
+            obj.register: obj for obj in STORAGE_HOLDING_REGISTERS_120
+        }
+        input_register = {
+            obj.register: obj for obj in INPUT_REGISTERS_120_TL_XH
+        }
+        input_register.update({
+            obj.register: obj for obj in STORAGE_INPUT_REGISTERS_120_TL_XH
         })
     elif GrowattDeviceType == DeviceTypes.STORAGE_120:
         max_length = MAXIMUM_DATA_LENGTH_120
@@ -449,7 +455,8 @@ async def get_device_info(device: GrowattModbusBase, unit: int, fixed_device_typ
     minimal_length = min((MAXIMUM_DATA_LENGTH_120, MAXIMUM_DATA_LENGTH_315))
 
     if fixed_device_types is not None:
-        if fixed_device_types in (DeviceTypes.INVERTER_120, DeviceTypes.HYBRIDE_120, DeviceTypes.STORAGE_120):
+        if fixed_device_types in (DeviceTypes.INVERTER_120, DeviceTypes.HYBRID_120, 
+                                  DeviceTypes.HYBRID_120_TL_XH, DeviceTypes.STORAGE_120):
             return await device.get_device_info(HOLDING_REGISTERS_120, minimal_length, unit)
         elif fixed_device_types in (DeviceTypes.INVERTER_315, DeviceTypes.OFFGRID_SPF):
             return await device.get_device_info(HOLDING_REGISTERS_315, minimal_length, unit)
