@@ -239,7 +239,7 @@ INPUT_REGISTERS_OFFGRID: tuple[GrowattDeviceRegisters, ...] = (
         name=ATTR_CONSTANT_POWER, register=47, value_type=int
     ),
     GrowattDeviceRegisters( # PV Energy today
-        name=ATTR_INPUT_1_ENERGY_TODAY, register=48, value_type=float, length=2
+        name=ATTR_INPUT_1_ENERGY_TODAY, register=48, value_type=float, length=2, max_value=1_000
     ),
     GrowattDeviceRegisters(
         name=ATTR_INPUT_1_ENERGY_TOTAL, register=50, value_type=float, length=2
@@ -252,13 +252,13 @@ INPUT_REGISTERS_OFFGRID: tuple[GrowattDeviceRegisters, ...] = (
     ),
 
     GrowattDeviceRegisters( # AC charge Energy today
-        name=ATTR_CHARGE_ENERGY_TODAY, register=56, value_type=float, length=2
+        name=ATTR_CHARGE_ENERGY_TODAY, register=56, value_type=float, length=2, max_value=1_000
     ),
     GrowattDeviceRegisters( # AC charge Energy total
         name=ATTR_CHARGE_ENERGY_TOTAL, register=58, value_type=float, length=2
     ),
     GrowattDeviceRegisters( # Bat discharge Energy today
-        name=ATTR_DISCHARGE_ENERGY_TODAY, register=60, value_type=float, length=2
+        name=ATTR_DISCHARGE_ENERGY_TODAY, register=60, value_type=float, length=2, max_value=1_000
     ),
     GrowattDeviceRegisters( # Bat discharge Energy Total
         name=ATTR_DISCHARGE_ENERGY_TOTAL, register=62, value_type=float, length=2
