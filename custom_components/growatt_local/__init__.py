@@ -21,7 +21,7 @@ from homeassistant.const import (
     SUN_EVENT_SUNSET,
 )
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
-from homeassistant.helpers import entity_registry, issue_registry 
+from homeassistant.helpers import entity_registry, issue_registry
 from homeassistant.helpers.event import (
     async_track_sunrise,
     async_track_sunset,
@@ -36,6 +36,7 @@ from .API.device_type.base import GrowattDeviceRegisters
 from .API.utils import RegisterKeys
 from .API.const import DeviceTypes
 from .API.growatt import GrowattDevice, GrowattSerial, GrowattNetwork
+from .API.exception import ModbusException
 from .const import (
     CONF_LAYER,
     CONF_SERIAL,
@@ -114,7 +115,7 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
     if config_entry.version > 1:
       # This means the user has downgraded from a future version
       return False
-    
+
     if config_entry.version == 1:
 
         new_data = {**config_entry.data}
@@ -151,13 +152,13 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
                 await entity_registry.async_migrate_entries(hass, config_entry.entry_id, replace_frequency)
             except ValueError as e:
                 _LOGGER.error(f"Failed to migrate entity: {e}\n", exc_info=True)
-                
+
                 issue_registry.async_create_issue(
-                    hass, 
-                    DOMAIN, 
-                    "entity_migration_frequency", 
-                    is_fixable=False, 
-                    severity=issue_registry.IssueSeverity.ERROR, 
+                    hass,
+                    DOMAIN,
+                    "entity_migration_frequency",
+                    is_fixable=False,
+                    severity=issue_registry.IssueSeverity.ERROR,
                     translation_key= "entity_migration_frequency",
                     translation_placeholders={
                         "entity_id": entity_id,
@@ -165,7 +166,7 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
                     }
                 )
                 return False
-            
+
         if config_entry.minor_version < 4:
             # Added Inverter power control in naming options of config entity
             new_options[CONF_INVERTER_POWER_CONTROL] = False
@@ -272,7 +273,7 @@ class GrowattLocalCoordinator(DataUpdateCoordinator):
                 await self.growatt_api.connect()
             self._failed_update_count += 1
             status = "not_connected"
-        except (asyncio.TimeoutError, ModbusIOException):
+        except (asyncio.TimeoutError, ModbusIOException, ModbusException):
             self._failed_update_count += 1
             status = "no_response"
 
@@ -369,6 +370,6 @@ class GrowattLocalCoordinator(DataUpdateCoordinator):
 
     async def write_register(self, key: str, payload):
         register = self.growatt_api.get_holding_register_by_name(key)
-        #TODO: better logging 
+        #TODO: better logging
         _LOGGER.debug("Device type key %s and register %d", register.name, register.register)
         await self.growatt_api.write_register(register.register, payload)
